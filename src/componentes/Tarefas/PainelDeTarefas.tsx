@@ -1,4 +1,4 @@
-function TaskPanel() {
+function PainelDeTarefas() {
   return (
     <aside className="tarefas">
       <div className="cabecalho-tarefas">
@@ -13,4 +13,4 @@ function TaskPanel() {
   )
 }
 
-export default TaskPanel
+export default PainelDeTarefas
