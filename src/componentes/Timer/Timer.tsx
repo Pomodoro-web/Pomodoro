@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react'
 import ExibirTempo from './ExibirTempo'
 import ControlesTimer from './ControlesTimer'
+import EstadoTimer from './EstadoTimer'
+
+type EstadoPomodoro = 'Foco' | 'Pausa curta' | 'Pausa longa'
 
 function Timer() {
   const [tempo, setTempo] = useState(25 * 60)
   const [rodando, setRodando] = useState(false)
+  
+  const [estado] = useState<EstadoPomodoro>('Foco')
 
   useEffect(() => {
     if (!rodando) {
@@ -26,7 +31,7 @@ function Timer() {
   return (
     <section className="pomodoro">
       <h1>Pomodoro</h1>
-
+      <EstadoTimer estado={estado} />
       <ExibirTempo tempo={tempo} />
 
       <ControlesTimer
