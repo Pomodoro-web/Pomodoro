@@ -6,7 +6,7 @@ import EstadoTimer from './EstadoTimer'
 type EstadoPomodoro = 'Foco' | 'Pausa curta' | 'Pausa longa'
 
 function Timer() {
-  const [tempo, setTempo] = useState(25 * 60)
+  const [tempo, setTempo] = useState(1 * 60)
   const [rodando, setRodando] = useState(false)
   
   const [estado] = useState<EstadoPomodoro>('Foco')
@@ -17,7 +17,14 @@ function Timer() {
     }
 
     const intervalo = setInterval(() => {
-      setTempo((tempoAtual) => tempoAtual - 1)
+      setTempo((tempoAtual) => {
+        if (tempoAtual <= 1) {
+          setRodando(false)
+          return 0
+        }
+
+        return tempoAtual - 1
+      })
     }, 1000)
 
     return () => clearInterval(intervalo)
