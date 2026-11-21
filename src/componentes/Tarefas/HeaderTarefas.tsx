@@ -5,7 +5,7 @@ type Props = {
 
 export default function HeaderTarefas(x: Props) {
     return (
-        <header>
+        <header id="header-tarefas">
             <div>
                 <h2>Tarefas</h2>
                 <p>{x.quantidade} tarefas cadastradas.</p>

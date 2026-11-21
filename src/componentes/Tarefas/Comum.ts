@@ -5,15 +5,15 @@ export type EstadoTarefa = 'backlog' | 'todo' | 'emExecucao' | 'concluida' | 'ca
 export function getTextoEquivalenteEstado(x: EstadoTarefa) : string {
     switch (x) {
         case 'todo':
-            return "Pendente.";
+            return "Pendente";
         case 'backlog':
-            return "Incerta.";
+            return "Incerta";
         case 'cancelada':
-            return "Cancelada!";
+            return "Cancelada";
         case 'concluida':
-            return "Concluída!"
+            return "Concluída"
         default:
-            return "Em execução.";
+            return "Em execução";
     }
 };
 
