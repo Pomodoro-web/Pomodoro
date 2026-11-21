@@ -1,13 +1,16 @@
 import './App.css'
 import PainelDeTarefas from './componentes/Tarefas/PainelDeTarefas'
 import Timer from './componentes/Timer/Timer'
+import { PresetProvider } from './componentes/Presets'
 
 function App() {
   return (
-    <main className="app">
-      <Timer />
-      <PainelDeTarefas />
-    </main>
+    <PresetProvider>
+      <main className="app">
+        <Timer />
+        <PainelDeTarefas />
+      </main>
+    </PresetProvider>
   )
 }
 
