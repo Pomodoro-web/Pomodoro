@@ -37,15 +37,18 @@ export default function ComponenteFormulario(x: Props) {
     }
 
     return (
-        <form className="formulario-tarefa">
+        <form id="formulario-tarefa">
             <h3>{x.nova ? 'Nova tarefa' : 'Editar tarefa'}</h3>
-            <label htmlFor="campo-titulo-tarefa">Título</label>
+            <label htmlFor="campo-titulo-tarefa">Título:&nbsp;</label>
             <input
                 id="campo-titulo-tarefa"
                 autoFocus
                 maxLength={TAMANHO_MAX_TITULO}
                 value={dadosFormulario.titulo}
-                onChange={(e) => { setDadosFormulario({ ...dadosFormulario, titulo: e.currentTarget.value }) } }
+                onChange={(e) => { 
+                    setDadosFormulario({ ...dadosFormulario, titulo: e.currentTarget.value });
+                    setTituloInvalido(false);
+                }}
                 placeholder="O que você precisa fazer?"
             />
             <br></br>
@@ -54,7 +57,7 @@ export default function ComponenteFormulario(x: Props) {
             )}
             <div className="campos-tarefa">
                 <div>
-                    <label htmlFor="prioridade-tarefa">Prioridade</label>
+                    <label htmlFor="prioridade-tarefa">Prioridade:&nbsp;</label>
                     <select
                         id="prioridade-tarefa"
                         value={dadosFormulario.prioridade}
@@ -66,7 +69,7 @@ export default function ComponenteFormulario(x: Props) {
                     </select>
                 </div>
                 <div>
-                    <label htmlFor="estado-tarefa">Estado</label>
+                    <label htmlFor="estado-tarefa">Estado:&nbsp;</label>
                     <select
                         id="estado-tarefa"
                         value={dadosFormulario.estado}
@@ -81,7 +84,7 @@ export default function ComponenteFormulario(x: Props) {
                 </div>
             </div>
 
-            <div className="acoes-formulario-tarefa">
+            <div id="acoes-formulario-tarefa">
                 <button type="button" className="botao-secundario-tarefa" onClick={x.aoCancelar}>Cancelar</button>
                 <button type="button" className="botao-nova-tarefa" onClick={extrairDados}>
                     {x.nova ? 'Adicionar tarefa' : 'Alterar tarefa'}

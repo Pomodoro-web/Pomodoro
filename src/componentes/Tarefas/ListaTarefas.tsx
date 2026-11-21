@@ -28,6 +28,6 @@ export default function ListaTarefas(x: Props) {
 
     }
 
-    return (<div className="lista-tarefas-pai">{componente}</div>)
+    return (componente)
     
 }

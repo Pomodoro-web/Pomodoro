@@ -36,7 +36,7 @@ function PainelDeTarefas() {
     return (
         <div id="tarefas">
         
-            <CabecalhoTarefas quantidade={tarefas.length} criarTarefa={criarNovaTarefa} />
+            <CabecalhoTarefas quantidade={tarefas.length} criarTarefa={criarNovaTarefa} habilitado={!formularioAberto} />
 
             {formularioAberto && (
                 <ComponenteFormulario
@@ -75,37 +75,39 @@ function PainelDeTarefas() {
                 />
             )}
 
-            <ListaTarefas
-                tarefas={tarefas}
-                aoEditar={(x: Tarefa) => {
-                    setTarefaEmEdicao(x.id);
-                    setFormularioAberto(true);
-                    setCriandoNovaTarefa(false);
-                    setDadosFormulario({
-                        titulo: x.titulo,
-                        estado: x.estado,
-                        prioridade: x.prioridade,
-                    });
-                }}
-                aoExcluir={(x: Tarefa) => {
-  
-                    if (confirm(`Deseja excluir a tarefa "${x.titulo}"?`)) {
-                        setTarefas(tarefas.filter(y => y.id !== x.id));
-                    }
-                    setTarefaEmEdicao(-1);
+            {!formularioAberto && (
+                <ListaTarefas
+                    tarefas={tarefas}
+                    aoEditar={(x: Tarefa) => {
+                        setTarefaEmEdicao(x.id);
+                        setFormularioAberto(true);
+                        setCriandoNovaTarefa(false);
+                        setDadosFormulario({
+                            titulo: x.titulo,
+                            estado: x.estado,
+                            prioridade: x.prioridade,
+                        });
+                    }}
+                    aoExcluir={(x: Tarefa) => {
+    
+                        if (confirm(`Deseja excluir a tarefa "${x.titulo}"?`)) {
+                            setTarefas(tarefas.filter(y => y.id !== x.id));
+                        }
+                        setTarefaEmEdicao(-1);
 
-                }}
-                aoAlterarEstado={(x: Tarefa, e: EstadoTarefa) => {
-                    setTarefas(
-                        tarefas.map((tarefa) =>
-                            tarefa.id === x.id ? {
-                                ...tarefa,
-                                estado: e
-                            } : tarefa
-                        )
-                    );
-                }}
-            />
+                    }}
+                    aoAlterarEstado={(x: Tarefa, e: EstadoTarefa) => {
+                        setTarefas(
+                            tarefas.map((tarefa) =>
+                                tarefa.id === x.id ? {
+                                    ...tarefa,
+                                    estado: e
+                                } : tarefa
+                            )
+                        );
+                    }}
+                />
+            )}
 
         </div>
     )
