@@ -154,8 +154,7 @@ select {
 }
 
 #sem-tarefas {
-    display: flex;
-    flex-direction: column;
+    
 }
 
 #icone-tudo-feito {
