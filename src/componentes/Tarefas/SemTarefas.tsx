@@ -1,4 +1,3 @@
-import './tarefas.css'
 
 function SemTarefas() {
 
@@ -6,10 +5,14 @@ function SemTarefas() {
 
         <div id="sem-tarefas">
 
+            <div id='block-tudo-feito'>
             <br></br>
 
-            <div><span id="icone-tudo-feito">&nbsp;✓&nbsp;</span></div>
+            <span id="icone-tudo-feito">&nbsp;✓&nbsp;</span>
             
+            <br></br>
+            </div>
+
             <br></br>
 
             <div>
