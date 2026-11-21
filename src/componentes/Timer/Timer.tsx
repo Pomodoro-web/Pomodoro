@@ -1,8 +1,15 @@
-import {useEffect, useState} from 'react'
+import { useEffect, useState } from 'react'
+import ExibirTempo from './ExibirTempo'
+import ControlesTimer from './ControlesTimer'
+import EstadoTimer from './EstadoTimer'
+
+type EstadoPomodoro = 'Foco' | 'Pausa curta' | 'Pausa longa'
 
 function Timer() {
-  const [tempo, setTempo] = useState(25 * 60)
+  const [tempo, setTempo] = useState(1 * 60)
   const [rodando, setRodando] = useState(false)
+  
+  const [estado] = useState<EstadoPomodoro>('Foco')
 
   useEffect(() => {
     if (!rodando) {
@@ -10,29 +17,36 @@ function Timer() {
     }
 
     const intervalo = setInterval(() => {
-      setTempo((tempoAtual) => tempoAtual - 1)
+      setTempo((tempoAtual) => {
+        if (tempoAtual <= 1) {
+          setRodando(false)
+          return 0
+        }
+
+        return tempoAtual - 1
+      })
     }, 1000)
-      return () => clearInterval(intervalo)
-    }, [rodando])
 
-    function reiniciar() {
-      setRodando(false)
-      setTempo(25 * 60)
-    }
+    return () => clearInterval(intervalo)
+  }, [rodando])
 
-    return (
-      <section className="pomodoro">
-        <h1>Pomodoro</h1>
+  function reiniciar() {
+    setRodando(false)
+    setTempo(25 * 60)
+  }
 
-        <p className="tempo">{tempo}</p>
+  return (
+    <section className="pomodoro">
+      <h1>Pomodoro</h1>
+      <EstadoTimer estado={estado} />
+      <ExibirTempo tempo={tempo} />
 
-        <div className="controles">
-          <button onClick={() => setRodando(true)}>Iniciar</button>
-          <button onClick={() => setRodando(false)}>Pausar</button>
-          <button onClick={reiniciar}>Reiniciar</button>
-        </div>
-      </section>
-    )
+      <ControlesTimer
+        iniciar={() => setRodando(true)}
+        pausar={() => setRodando(false)}
+        reiniciar={reiniciar}
+      />
+    </section>
+  )
 }
-
 export default Timer
