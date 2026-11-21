@@ -15,35 +15,19 @@ type Props = {
 }
 
 export function ItemTarefa(args: Props) {
-    /*
-
-                    <select
-                        value={args.tarefa.estado}
-                        onChange={(evento) => args.aoAlterarEstado(args.tarefa, evento.target.value as EstadoTarefa)}
-                    >
-                        {getTextoEquivalenteEstado(args.tarefa.estado)}
-                    </select>
-    */
     return (
         <li className={`tarefa-item prioridade${args.tarefa.prioridade}`}>
 
             <div>
 
                 <label>
-                    <input
+                    <input className='check-tarefa'
                         type="checkbox"
                         checked={args.tarefa.estado === 'concluida'}
                         onChange={(evento) => args.aoAlterarEstado(args.tarefa, evento.target.checked ? 'concluida' : 'todo')}
                     />
-                    <span className={args.tarefa.estado === 'concluida' ? 'concluido' : ''}>{args.tarefa.titulo}</span>
+                    <span className={args.tarefa.estado === 'concluida' ? 'titulo-tarefa concluido' : 'titulo-tarefa'}>&nbsp;{args.tarefa.titulo}</span>
                 </label>
-
-                <div>
-                    <span className="tag-prioridade">
-                        {getTextoEquivalentePrioridade(args.tarefa.prioridade)}
-                    </span>
-
-                </div>
 
             </div>
 

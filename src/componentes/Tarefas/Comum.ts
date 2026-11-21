@@ -5,9 +5,9 @@ export type EstadoTarefa = 'backlog' | 'todo' | 'emExecucao' | 'concluida' | 'ca
 export function getTextoEquivalenteEstado(x: EstadoTarefa) : string {
     switch (x) {
         case 'todo':
-            return "Pendente";
+            return "A fazer";
         case 'backlog':
-            return "Incerta";
+            return "Backlog";
         case 'cancelada':
             return "Cancelada";
         case 'concluida':
