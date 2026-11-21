@@ -1,5 +1,5 @@
 import { getTextoEquivalenteEstado, getTextoEquivalentePrioridade, type EstadoTarefa, type FormularioTarefa } from "./Comum"
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 type Props = {
     dados: FormularioTarefa

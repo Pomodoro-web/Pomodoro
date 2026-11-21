@@ -15,22 +15,6 @@ type Props = {
 }
 
 export function ItemTarefa(args: Props) {
-    /*
-
-                    <select
-                        value={args.tarefa.estado}
-                        onChange={(evento) => args.aoAlterarEstado(args.tarefa, evento.target.value as EstadoTarefa)}
-                    >
-                        {getTextoEquivalenteEstado(args.tarefa.estado)}
-                    </select>
-
-                                    <div>
-                    <span className="tag-prioridade">
-                        {getTextoEquivalentePrioridade(args.tarefa.prioridade)}
-                    </span>
-
-                </div>
-    */
     return (
         <li className={`tarefa-item prioridade${args.tarefa.prioridade}`}>
 
