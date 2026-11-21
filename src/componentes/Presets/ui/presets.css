@@ -1,0 +1,395 @@
+/* ==========================================================================
+   Estilos do Módulo de Presets
+   Integrado com as variáveis de tema do projeto (--bg, --text, --accent, etc.)
+   ========================================================================== */
+
+.seletor-presets-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 20px 0;
+  width: 100%;
+}
+
+.seletor-presets-barra {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  box-shadow: var(--shadow);
+}
+
+.seletor-presets-rotulo {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.seletor-presets-select {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background-color: var(--bg);
+  color: var(--text-h);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.seletor-presets-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-bg);
+}
+
+.botao-abrir-gerenciador {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background-color: var(--bg);
+  color: var(--text-h);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.botao-abrir-gerenciador:hover {
+  border-color: var(--accent);
+  background-color: var(--accent-bg);
+  color: var(--accent);
+}
+
+.seletor-presets-resumo {
+  font-size: 13px;
+  color: var(--text);
+  margin: 0;
+}
+
+/* Modal de Gerenciamento */
+.modal-presets-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-presets-dialogo {
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 580px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow);
+  text-align: left;
+  overflow: hidden;
+}
+
+.modal-presets-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-presets-cabecalho h2 {
+  font-size: 20px;
+  margin: 0;
+  color: var(--text-h);
+}
+
+.botao-fechar-modal {
+  background: none;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--text);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.botao-fechar-modal:hover {
+  background-color: var(--code-bg);
+  color: var(--text-h);
+}
+
+.modal-presets-corpo {
+  padding: 20px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-presets-acoes-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.botao-novo-preset {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+  background-color: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.botao-novo-preset:hover {
+  opacity: 0.9;
+}
+
+.botao-restaurar-padroes {
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text);
+  background: none;
+  border: 1px dashed var(--border);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.botao-restaurar-padroes:hover {
+  color: var(--text-h);
+  border-color: var(--text);
+}
+
+/* Lista de Presets */
+.lista-presets {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item-preset {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background-color: var(--code-bg);
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.item-preset.ativo {
+  border-color: var(--accent-border);
+  background-color: var(--accent-bg);
+}
+
+.info-preset {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.titulo-preset-linha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nome-preset {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0;
+}
+
+.badge-tag {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-padrao {
+  background-color: var(--border);
+  color: var(--text);
+}
+
+.badge-ativo {
+  background-color: var(--accent);
+  color: #ffffff;
+}
+
+.badge-custom {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.detalhes-preset {
+  font-size: 13px;
+  color: var(--text);
+  margin: 0;
+}
+
+.acoes-preset {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.botao-acao-preset {
+  font-family: inherit;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background-color: var(--bg);
+  color: var(--text-h);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.botao-acao-preset:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.botao-acao-excluir:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.08);
+}
+
+.botao-acao-ativar {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Formulário de Criação/Edição */
+.formulario-preset {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formulario-preset-cabecalho {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0 0 4px 0;
+}
+
+.campo-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo-grupo label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+.campo-input {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background-color: var(--bg);
+  color: var(--text-h);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.campo-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-bg);
+}
+
+.campo-input.com-erro {
+  border-color: #ef4444;
+}
+
+.grid-campos-tempos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.msg-validacao {
+  font-size: 12px;
+  color: #ef4444;
+  margin-top: 2px;
+}
+
+.formulario-preset-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.botao-secundario {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background-color: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.botao-secundario:hover {
+  background-color: var(--code-bg);
+  color: var(--text-h);
+}
+
+.botao-primario {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+  background-color: var(--accent);
+  color: #ffffff;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.botao-primario:hover {
+  opacity: 0.9;
+}
