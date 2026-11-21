@@ -1,3 +1,8 @@
 #header-tarefas {
     background-color: lightcoral;
 }
+
+.msg-validacao {
+    color: red;
+    font-size: 10px;
+}

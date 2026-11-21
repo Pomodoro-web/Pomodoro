@@ -10,13 +10,21 @@ type Props = {
     aoCancelar: () => void
 }
 
-
+const TAMANHO_MAX_TITULO = 100;
 
 export default function ComponenteFormulario(x: Props) {
 
     const [dadosFormulario, setDadosFormulario] = useState<FormularioTarefa>(x.dados);
+    const [tituloInvalido, setTituloInvalido] = useState(false);
 
     function extrairDados(): void {
+        
+        if (dadosFormulario.titulo.length == 0 || dadosFormulario.titulo.length > TAMANHO_MAX_TITULO) {
+            setTituloInvalido(true);
+            return;
+        } else {
+            setTituloInvalido(false);
+        }
 
         if (x.nova) {
             x.aoSalvar(dadosFormulario);
@@ -40,8 +48,10 @@ export default function ComponenteFormulario(x: Props) {
                 onChange={(e) => { setDadosFormulario({ ...dadosFormulario, titulo: e.currentTarget.value }) } }
                 placeholder="O que você precisa fazer?"
             />
-            
-
+            <br></br>
+            {tituloInvalido && (
+                <span className="msg-validacao">Certifique-se de colocar um título, e que ele não ultrapasse {TAMANHO_MAX_TITULO} caracteres.</span>
+            )}
             <div className="campos-tarefa">
                 <div>
                     <label htmlFor="prioridade-tarefa">Prioridade</label>
