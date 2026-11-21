@@ -42,8 +42,8 @@ export default function ComponenteFormulario(x: Props) {
             <label htmlFor="campo-titulo-tarefa">Título</label>
             <input
                 id="campo-titulo-tarefa"
-                // autoFocus
-                maxLength={100}
+                autoFocus
+                maxLength={TAMANHO_MAX_TITULO}
                 value={dadosFormulario.titulo}
                 onChange={(e) => { setDadosFormulario({ ...dadosFormulario, titulo: e.currentTarget.value }) } }
                 placeholder="O que você precisa fazer?"

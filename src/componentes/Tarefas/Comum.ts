@@ -71,8 +71,7 @@ export function salvarTarefas(tarefas: Tarefa[]): void {
 }
 
 export function gerarIDUnico(): number {
-    // para garantir que seja unico mesmo, vamos ir salvando no localStorage tambem
-
+    
     const novoId = localStorage.getItem(CHAVE_LS_TAREFAS_CONTADOR);
 
     if (novoId == null) {

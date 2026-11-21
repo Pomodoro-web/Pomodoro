@@ -1,3 +1,6 @@
+
+
+
 #header-tarefas {
     background-color: lightcoral;
 }
@@ -5,4 +8,35 @@
 .msg-validacao {
     color: red;
     font-size: 10px;
+}
+
+.concluido {
+    text-decoration: line-through;
+}
+
+.tag-prioridade {
+    font-size: 14px;
+    background-color: lightgray;
+    border-radius: 10px;
+    padding: 3px 3px 3px 3px;
+}
+
+.lista-tarefas {
+    list-style-type:none;
+}
+.tarefa-item {
+    border-radius: 10px;
+    border-style: solid;
+    padding: 10px 10px 10px 10px;
+    margin-bottom: 25px;
+    background-color: aqua;
+}
+.prioridade0 {
+    background-color: lightgreen;
+}
+.prioridade1 {
+    background-color: lightyellow;
+}
+.prioridade2 {
+    background-color: lightcoral;
 }

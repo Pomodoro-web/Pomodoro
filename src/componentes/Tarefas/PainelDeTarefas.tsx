@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useState } from 'react'
 
-import { ItemTarefa } from './ItemTarefa';
-import { type Tarefa, type EstadoTarefa, carregarTarefas, type FormularioTarefa, gerarIDUnico } from './Comum';
+import { type Tarefa, type EstadoTarefa, carregarTarefas, type FormularioTarefa, gerarIDUnico, salvarTarefas } from './Comum';
 import ListaTarefas from './ListaTarefas';
 import CabecalhoTarefas from './HeaderTarefas';
 import ComponenteFormulario from './ComponenteFormulario';
@@ -9,84 +8,30 @@ import ComponenteFormulario from './ComponenteFormulario';
 
 function PainelDeTarefas() {
 
-    let [dummy, setDummy] = useState();
-    let [tarefas, setTarefas] = useState(carregarTarefas());
-    let [formularioAberto, setFormularioAberto] = useState(false);
-    let [tarefaEmEdicao, setTarefaEmEdicao] = useState(-1);
-    let [formularioAtual, setFormularioAtual] = useState(false);
-    let [criandoNovaTarefa, setCriandoNovaTarefa] = useState(false);
+    const [tarefas, setTarefas] = useState(carregarTarefas());
+    const [formularioAberto, setFormularioAberto] = useState(false);
+    const [tarefaEmEdicao, setTarefaEmEdicao] = useState(-1);
+    const [criandoNovaTarefa, setCriandoNovaTarefa] = useState(false);
 
-    let [dadosFormulario, setDadosFormulario] = useState<FormularioTarefa>({ estado:'backlog', prioridade:0, titulo:"Titulo" });
+    const [dadosFormulario, setDadosFormulario] = useState<FormularioTarefa>({ estado:'backlog', prioridade: 1, titulo: "" });
+
+    useEffect(() => {
+        salvarTarefas(tarefas);
+    }, [tarefas]);
 
     function criarNovaTarefa() : void {
         setFormularioAberto(true);
         setCriandoNovaTarefa(true);
-    }
-
-    function atualizar(x: (atuais: Tarefa[]) => Tarefa[]) {
-        // setStoragePronto(true)
-        setTarefas(x)
-    }
-
-    function excluirTarefa(tarefa: Tarefa) {
-
+        setDadosFormulario({
+            estado: "backlog",
+            prioridade: 1,
+            titulo: "",
+        });
     }
 
     function cancelarFormulario() {
         setFormularioAberto(false);
     }
-
-    function editarTarefa() {
-        
-
-
-    }
-
-    function adicionarNovaTarefa() {
-
-        const novaTarefa: Tarefa = {
-            id: gerarIDUnico(),
-            atualizadaEm: new Date().toISOString(),
-            criadaEm: new Date().toISOString(),
-            estado: dadosFormulario.estado,
-            prioridade: dadosFormulario.prioridade,
-            titulo: dadosFormulario.titulo,
-        };
-
-        tarefas.push(novaTarefa);
-
-        setTarefas(tarefas);
-
-    }
-
-    /*
-        function salvarTarefa(evento: FormEvent<HTMLFormElement>) {
-    evento.preventDefault()
-    const titulo = formulario.titulo.trim()
-    if (!titulo) {
-      setErroTitulo('Informe o título da tarefa.')
-      return
-    }
-    if (titulo.length > 100) {
-      setErroTitulo('O título deve ter no máximo 100 caracteres.')
-      return
-    }
-
-    const agora = new Date().toISOString()
-    if (tarefaEditando) {
-      atualizarTarefas((atuais) => atuais.map((tarefa) =>
-        tarefa.id === tarefaEditando ? { ...tarefa, ...formulario, titulo, atualizadaEm: agora } : tarefa,
-      ))
-    } else {
-      atualizarTarefas((atuais) => [...atuais, {
-        id: gerarId(), titulo, estado: formulario.estado, prioridade: formulario.prioridade,
-        criadaEm: agora, atualizadaEm: agora,
-      }])
-    }
-    fecharFormulario()
-  }
-    */
-
 
     return (
         <div id="tarefas">
@@ -99,16 +44,6 @@ function PainelDeTarefas() {
                     erroTitulo={"errro"}
                     nova={criandoNovaTarefa}
                     aoAlterar={(d: FormularioTarefa) => {
-
-                        const t = tarefas.find(
-                            (t: Tarefa, index: number, obj: Tarefa[]) => {
-                                return t.id === tarefaEmEdicao;
-                            }
-                        );
-
-                        if (t === undefined) {
-                            return;
-                        }
 
                         setTarefas(
                             tarefas.map((tarefa) =>
@@ -155,13 +90,20 @@ function PainelDeTarefas() {
                 aoExcluir={(x: Tarefa) => {
   
                     if (confirm(`Deseja excluir a tarefa "${x.titulo}"?`)) {
-                        setTarefas(tarefas.filter(x => x.id !== x.id));
+                        setTarefas(tarefas.filter(y => y.id !== x.id));
                     }
                     setTarefaEmEdicao(-1);
 
                 }}
-                aoAlterarEstado={(x: Tarefa) => {
-
+                aoAlterarEstado={(x: Tarefa, e: EstadoTarefa) => {
+                    setTarefas(
+                        tarefas.map((tarefa) =>
+                            tarefa.id === x.id ? {
+                                ...tarefa,
+                                estado: e
+                            } : tarefa
+                        )
+                    );
                 }}
             />
 
