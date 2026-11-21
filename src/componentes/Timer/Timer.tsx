@@ -22,38 +22,37 @@ function Timer() {
     }
 
     const intervalo = setInterval(() => {
-      setTempo((tempoAtual) => Math.max(0, tempoAtual - 1))
+      if (tempo <= 1) {
+        if (estado === 'Foco') {
+          if (cicloAtual >= CICLOS_ANTES_PAUSA_LONGA) {
+            setEstado('Pausa longa')
+            setTempo(TEMPO_PAUSA_LONGA)
+          } else {
+            setEstado('Pausa curta')
+            setTempo(TEMPO_PAUSA_CURTA)
+          }
+        }
+
+        else if (estado === 'Pausa curta') {
+          setCicloAtual((ciclo) => ciclo + 1)
+          setEstado('Foco')
+          setTempo(TEMPO_FOCO)
+        }
+
+        else if (estado === 'Pausa longa') {
+          setCicloAtual(1)
+          setEstado('Foco')
+          setTempo(TEMPO_FOCO)
+        }
+
+        return
+      }
+
+      setTempo((tempoAtual) => tempoAtual - 1)
     }, 1000)
 
     return () => clearInterval(intervalo)
-  }, [rodando])
-
-  useEffect(() => {
-    if (tempo === 0 && rodando) {
-
-      if (estado === 'Foco') {
-        if (cicloAtual >= CICLOS_ANTES_PAUSA_LONGA) {
-          setEstado('Pausa longa')
-          setTempo(TEMPO_PAUSA_LONGA)
-        } else {
-          setEstado('Pausa curta')
-          setTempo(TEMPO_PAUSA_CURTA)
-        }
-      }
-
-      else if (estado === 'Pausa curta') {
-        setCicloAtual((ciclo) => ciclo + 1)
-        setEstado('Foco')
-        setTempo(TEMPO_FOCO)
-      }
-
-      else if (estado === 'Pausa longa') {
-        setCicloAtual(1)
-        setEstado('Foco')
-        setTempo(TEMPO_FOCO)
-      }
-    }
-  }, [tempo, rodando, estado, cicloAtual])
+  }, [rodando, tempo, estado, cicloAtual])
 
   function reiniciar() {
     setRodando(false)
@@ -62,13 +61,33 @@ function Timer() {
     setTempo(TEMPO_FOCO)
   }
 
+  function pular() {
+  if (estado === 'Foco') {
+      if (cicloAtual >= CICLOS_ANTES_PAUSA_LONGA) {
+        setEstado('Pausa longa')
+        setTempo(TEMPO_PAUSA_LONGA)
+      } else {
+        setEstado('Pausa curta')
+        setTempo(TEMPO_PAUSA_CURTA)
+      }
+    }
+
+    else if (estado === 'Pausa curta') {
+      setEstado('Foco')
+      setTempo(TEMPO_FOCO)
+    }
+
+    else if (estado === 'Pausa longa') {
+      setEstado('Foco')
+      setTempo(TEMPO_FOCO)
+    }
+  }
+
   return (
     <section className="pomodoro">
       <h1>Pomodoro</h1>
 
       <EstadoTimer estado={estado} />
-
-      <p>Ciclo {cicloAtual}</p>
 
       <ExibirTempo tempo={tempo} />
 
@@ -76,6 +95,7 @@ function Timer() {
         iniciar={() => setRodando(true)}
         pausar={() => setRodando(false)}
         reiniciar={reiniciar}
+        pular={pular}
       />
     </section>
   )
