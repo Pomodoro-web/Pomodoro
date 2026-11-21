@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 
 import { type Tarefa, type EstadoTarefa, carregarTarefas, type FormularioTarefa, gerarIDUnico, salvarTarefas } from './Comum';
 import ListaTarefas from './ListaTarefas';
@@ -14,6 +14,34 @@ function PainelDeTarefas() {
     const [criandoNovaTarefa, setCriandoNovaTarefa] = useState(false);
 
     const [dadosFormulario, setDadosFormulario] = useState<FormularioTarefa>({ estado:'backlog', prioridade: 1, titulo: "" });
+
+    function ordenarTarefas(tarefas: Tarefa[]): Tarefa[] {
+
+        const ordemEstado = {
+            todo: 1,
+            emExecucao: 2,
+            concluida: 3,
+            cancelada: 4,
+            backlog: 5,
+        };
+
+        return [...tarefas].sort((a, b) => {
+
+            const diferencaPrioridade = b.prioridade - a.prioridade;
+
+            if (diferencaPrioridade !== 0) {
+                return diferencaPrioridade;
+            }
+
+            return ordemEstado[a.estado] - ordemEstado[b.estado];
+
+        });
+
+    }
+
+    const tarefasOrdenadas = useMemo(() => 
+        ordenarTarefas(tarefas), [tarefas]
+    );
 
     useEffect(() => {
         salvarTarefas(tarefas);
@@ -36,7 +64,7 @@ function PainelDeTarefas() {
     return (
         <div id="tarefas">
         
-            <CabecalhoTarefas quantidade={tarefas.length} criarTarefa={criarNovaTarefa} habilitado={!formularioAberto} />
+            <CabecalhoTarefas quantidade={tarefasOrdenadas.length} criarTarefa={criarNovaTarefa} habilitado={!formularioAberto} />
 
             {formularioAberto && (
                 <ComponenteFormulario
@@ -77,7 +105,7 @@ function PainelDeTarefas() {
 
             {!formularioAberto && (
                 <ListaTarefas
-                    tarefas={tarefas}
+                    tarefas={tarefasOrdenadas}
                     aoEditar={(x: Tarefa) => {
                         setTarefaEmEdicao(x.id);
                         setFormularioAberto(true);
