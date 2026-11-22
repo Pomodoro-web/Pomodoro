@@ -55,7 +55,10 @@ function Timer() {
   }, [rodando, tempo, estado, cicloAtual])
 
   function reiniciar() {
-    setRodando(false)
+    const confirmou = window.confirm('Deseja reiniciar os ciclos?')
+    if (!confirmou) {
+      return
+    }
     setEstado('Foco')
     setCicloAtual(1)
     setTempo(TEMPO_FOCO)
