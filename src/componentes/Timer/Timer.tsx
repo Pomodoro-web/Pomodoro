@@ -14,13 +14,24 @@ import type {
   SessaoAtiva
 } from './persistenciaSessao'
 
-const TEMPO_FOCO = 1 * 60
-const TEMPO_PAUSA_CURTA = 0.5 * 60
-const TEMPO_PAUSA_LONGA = 1 * 60
+const TEMPO_FOCO = 0.5 * 60
+const TEMPO_PAUSA_CURTA = 0.2 * 60
+const TEMPO_PAUSA_LONGA = 0.5 * 60
 const CICLOS_ANTES_PAUSA_LONGA = 2
 
 function obterAgora() {
   return Date.now()
+}
+
+function obterDuracaoDaFase(fase: EstadoPomodoro) {
+  if (fase === 'Foco') {
+    return TEMPO_FOCO
+  }
+  if (fase === 'Pausa curta') {
+    return TEMPO_PAUSA_CURTA
+  }
+  
+  return TEMPO_PAUSA_LONGA
 }
 
 function Timer() {
@@ -30,6 +41,75 @@ function Timer() {
   const [cicloAtual, setCicloAtual] = useState(1)
   const [confirmarReinicio, setConfirmarReinicio] = useState(false)
   const [confirmarEncerramento, setConfirmarEncerramento] = useState(false)
+
+  useEffect(() => {
+    const sessao = buscarSessao()
+
+    if (!sessao) {
+      return
+    }
+
+    if (sessao.status === 'pausada') {
+      const tempoRestante = sessao.tempoRestanteAoPausarMs ?? 0
+
+      const restaurarSessao = setTimeout(() => {
+        setEstado(sessao.faseAtual)
+        setCicloAtual(sessao.cicloAtual)
+        setTempo(Math.ceil(tempoRestante / 1000))
+        setRodando(false)
+      }, 0)
+
+      return () => clearTimeout(restaurarSessao)
+    }
+
+    if (sessao.status === 'emAndamento') {
+      const agora = obterAgora()
+      let faseAtual = sessao.faseAtual
+      let cicloAtualRestaurado = sessao.cicloAtual
+      let fimDaFase = sessao.fimFasePrevistoEm
+
+      while (fimDaFase <= agora) {
+        if (faseAtual === 'Foco') {
+          if (cicloAtualRestaurado >= CICLOS_ANTES_PAUSA_LONGA) {
+            faseAtual = 'Pausa longa'
+          } else {
+            faseAtual = 'Pausa curta'
+          }
+        }
+
+        else if (faseAtual === 'Pausa curta') {
+          cicloAtualRestaurado = cicloAtualRestaurado + 1
+          faseAtual = 'Foco'
+        }
+
+        else {
+          cicloAtualRestaurado = 1
+          faseAtual = 'Foco'
+        }
+
+        fimDaFase = fimDaFase + obterDuracaoDaFase(faseAtual) * 1000
+      }
+
+      const tempoRestante = fimDaFase - agora
+
+      sessao.faseAtual = faseAtual
+      sessao.cicloAtual = cicloAtualRestaurado
+      sessao.inicioFaseEm = fimDaFase - obterDuracaoDaFase(faseAtual) * 1000
+      sessao.fimFasePrevistoEm = fimDaFase
+      sessao.atualizadaEm = agora
+
+      salvarSessao(sessao)
+
+      const restaurarSessao = setTimeout(() => {
+        setEstado(faseAtual)
+        setCicloAtual(cicloAtualRestaurado)
+        setTempo(Math.ceil(tempoRestante / 1000))
+        setRodando(true)
+      }, 0)
+
+      return () => clearTimeout(restaurarSessao)
+    }
+  }, [])
 
   useEffect(() => {
     if (!rodando) {
@@ -90,7 +170,7 @@ function Timer() {
 
     return () => clearInterval(intervalo)
   }, [rodando, tempo, estado, cicloAtual])
-  
+
   function iniciarSessao() {
     const sessaoSalva = buscarSessao()
 
