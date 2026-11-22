@@ -3,38 +3,25 @@ import ExibirTempo from './ExibirTempo'
 import ControlesTimer from './ControlesTimer'
 import EstadoTimer from './EstadoTimer'
 
-type EstadoPomodoro = 'Foco' | 'Pausa curta' | 'Pausa longa'
+import {
+  buscarSessao,
+  salvarSessao,
+  removerSessao
+} from './persistenciaSessao'
 
-type SessaoAtiva = {
-  id: string
-  presetId: string
-
-  snapshotPreset: {
-    tempoFocoMin: number
-    tempoPausaCurtaMin: number
-    ciclosAntesPausaLonga: number
-    tempoPausaLongaMin: number
-  }
-
-  faseAtual: EstadoPomodoro
-  cicloAtual: number
-
-  status: 'emAndamento' | 'pausada' | 'concluida'
-
-  inicioFaseEm: number
-  fimFasePrevistoEm: number
-
-  pausadaEm: number | null
-  tempoRestanteAoPausarMs: number | null
-
-  criadaEm: number
-  atualizadaEm: number
-}
+import type {
+  EstadoPomodoro,
+  SessaoAtiva
+} from './persistenciaSessao'
 
 const TEMPO_FOCO = 1 * 60
 const TEMPO_PAUSA_CURTA = 0.5 * 60
 const TEMPO_PAUSA_LONGA = 1 * 60
 const CICLOS_ANTES_PAUSA_LONGA = 2
+
+function obterAgora() {
+  return Date.now()
+}
 
 function Timer() {
   const [tempo, setTempo] = useState(TEMPO_FOCO)
@@ -82,9 +69,21 @@ function Timer() {
     return () => clearInterval(intervalo)
   }, [rodando, tempo, estado, cicloAtual])
 
-
   function iniciarSessao() {
-    const agora = Date.now()
+    const sessaoSalva = buscarSessao()
+
+    if (sessaoSalva) {
+      if (sessaoSalva.status === 'pausada') {
+        retomarSessao()
+        return
+      }
+
+      if (sessaoSalva.status === 'emAndamento') {
+        return
+      }
+    }
+
+    const agora = obterAgora()
 
     const sessao: SessaoAtiva = {
       id: crypto.randomUUID(),
@@ -99,7 +98,6 @@ function Timer() {
 
       faseAtual: 'Foco',
       cicloAtual: 1,
-
       status: 'emAndamento',
 
       inicioFaseEm: agora,
@@ -112,41 +110,63 @@ function Timer() {
       atualizadaEm: agora
     }
 
-    localStorage.setItem(
-      'pomodoro.sessaoAtiva',
-      JSON.stringify(sessao)
-    )
+    salvarSessao(sessao)
 
+    setEstado('Foco')
+    setCicloAtual(1)
+    setTempo(TEMPO_FOCO)
     setRodando(true)
   }
 
   function pausarSessao() {
-    const sessaoSalva = localStorage.getItem('pomodoro.sessaoAtiva')
+    const sessao = buscarSessao()
 
-    if (!sessaoSalva) {
+    if (!sessao) {
       return
     }
 
-    const sessao: SessaoAtiva = JSON.parse(sessaoSalva)
-
-    const agora = Date.now()
+    const agora = obterAgora()
 
     sessao.status = 'pausada'
     sessao.pausadaEm = agora
     sessao.tempoRestanteAoPausarMs = tempo * 1000
     sessao.atualizadaEm = agora
 
-    localStorage.setItem(
-      'pomodoro.sessaoAtiva',
-      JSON.stringify(sessao)
-    )
+    salvarSessao(sessao)
 
     setRodando(false)
+  }
+
+  function retomarSessao() {
+    const sessao = buscarSessao()
+
+    if (!sessao) {
+      return
+    }
+
+    if (sessao.status !== 'pausada') {
+      return
+    }
+
+    const agora = obterAgora()
+    const tempoRestante = sessao.tempoRestanteAoPausarMs ?? 0
+
+    sessao.status = 'emAndamento'
+    sessao.inicioFaseEm = agora
+    sessao.fimFasePrevistoEm = agora + tempoRestante
+    sessao.pausadaEm = null
+    sessao.tempoRestanteAoPausarMs = null
+    sessao.atualizadaEm = agora
+
+    salvarSessao(sessao)
+
+    setRodando(true)
   }
 
   function reiniciar() {
     setConfirmarReinicio(true)
   }
+
   function confirmarReinicioDosCiclos() {
     setEstado('Foco')
     setCicloAtual(1)
@@ -155,25 +175,52 @@ function Timer() {
   }
 
   function pular() {
-  if (estado === 'Foco') {
+    let novaFase: EstadoPomodoro
+    let novoTempo: number
+
+    if (estado === 'Foco') {
       if (cicloAtual >= CICLOS_ANTES_PAUSA_LONGA) {
-        setEstado('Pausa longa')
-        setTempo(TEMPO_PAUSA_LONGA)
+        novaFase = 'Pausa longa'
+        novoTempo = TEMPO_PAUSA_LONGA
       } else {
-        setEstado('Pausa curta')
-        setTempo(TEMPO_PAUSA_CURTA)
+        novaFase = 'Pausa curta'
+        novoTempo = TEMPO_PAUSA_CURTA
       }
     }
 
     else if (estado === 'Pausa curta') {
-      setEstado('Foco')
-      setTempo(TEMPO_FOCO)
+      novaFase = 'Foco'
+      novoTempo = TEMPO_FOCO
     }
 
-    else if (estado === 'Pausa longa') {
-      setEstado('Foco')
-      setTempo(TEMPO_FOCO)
+    else {
+      novaFase = 'Foco'
+      novoTempo = TEMPO_FOCO
     }
+
+    setEstado(novaFase)
+    setTempo(novoTempo)
+
+    const sessao = buscarSessao()
+
+    if (!sessao) {
+      return
+    }
+
+    const agora = obterAgora()
+
+    sessao.faseAtual = novaFase
+    sessao.cicloAtual = cicloAtual
+    sessao.inicioFaseEm = agora
+    sessao.fimFasePrevistoEm = agora + novoTempo * 1000
+    sessao.atualizadaEm = agora
+
+    if (sessao.status === 'pausada') {
+      sessao.pausadaEm = agora
+      sessao.tempoRestanteAoPausarMs = novoTempo * 1000
+    }
+
+    salvarSessao(sessao)
   }
 
   function encerrar() {
@@ -181,13 +228,14 @@ function Timer() {
   }
 
   function confirmarEncerramentoDaSessao() {
+    removerSessao()
+
     setRodando(false)
     setEstado('Foco')
     setCicloAtual(1)
     setTempo(TEMPO_FOCO)
     setConfirmarEncerramento(false)
   }
-  
 
   return (
     <section className="pomodoro">
@@ -201,33 +249,22 @@ function Timer() {
         pausar={pausarSessao}
         reiniciar={reiniciar}
         pular={pular}
-        encerrar = {encerrar}
+        encerrar={encerrar}
       />
 
       {confirmarReinicio && (
         <div className="confirmacao">
           <p>Deseja reiniciar os ciclos?</p>
-
-          <button onClick={confirmarReinicioDosCiclos}>
-            Confirmar
-          </button>
-          <button onClick={() => setConfirmarReinicio(false)}>
-            Cancelar
-          </button>
+          <button onClick={confirmarReinicioDosCiclos}>Confirmar</button>
+          <button onClick={() => setConfirmarReinicio(false)}>Cancelar</button>
         </div>
       )}
 
       {confirmarEncerramento && (
         <div className="confirmacao">
           <p>Deseja encerrar a sessão?</p>
-
-          <button onClick={confirmarEncerramentoDaSessao}>
-            Confirmar
-          </button>
-
-          <button onClick={() => setConfirmarEncerramento(false)}>
-            Cancelar
-          </button>
+          <button onClick={confirmarEncerramentoDaSessao}>Confirmar</button>
+          <button onClick={() => setConfirmarEncerramento(false)}>Cancelar</button>
         </div>
       )}
     </section>
