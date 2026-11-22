@@ -1,7 +1,5 @@
 import {
 
-    getTextoEquivalenteEstado,
-    getTextoEquivalentePrioridade,
     type EstadoTarefa,
     type Tarefa
 
