@@ -5,6 +5,32 @@ import EstadoTimer from './EstadoTimer'
 
 type EstadoPomodoro = 'Foco' | 'Pausa curta' | 'Pausa longa'
 
+type SessaoAtiva = {
+  id: string
+  presetId: string
+
+  snapshotPreset: {
+    tempoFocoMin: number
+    tempoPausaCurtaMin: number
+    ciclosAntesPausaLonga: number
+    tempoPausaLongaMin: number
+  }
+
+  faseAtual: EstadoPomodoro
+  cicloAtual: number
+
+  status: 'emAndamento' | 'pausada' | 'concluida'
+
+  inicioFaseEm: number
+  fimFasePrevistoEm: number
+
+  pausadaEm: number | null
+  tempoRestanteAoPausarMs: number | null
+
+  criadaEm: number
+  atualizadaEm: number
+}
+
 const TEMPO_FOCO = 1 * 60
 const TEMPO_PAUSA_CURTA = 0.5 * 60
 const TEMPO_PAUSA_LONGA = 1 * 60
@@ -55,6 +81,68 @@ function Timer() {
 
     return () => clearInterval(intervalo)
   }, [rodando, tempo, estado, cicloAtual])
+
+
+  function iniciarSessao() {
+    const agora = Date.now()
+
+    const sessao: SessaoAtiva = {
+      id: crypto.randomUUID(),
+      presetId: 'temporario',
+
+      snapshotPreset: {
+        tempoFocoMin: TEMPO_FOCO / 60,
+        tempoPausaCurtaMin: TEMPO_PAUSA_CURTA / 60,
+        ciclosAntesPausaLonga: CICLOS_ANTES_PAUSA_LONGA,
+        tempoPausaLongaMin: TEMPO_PAUSA_LONGA / 60
+      },
+
+      faseAtual: 'Foco',
+      cicloAtual: 1,
+
+      status: 'emAndamento',
+
+      inicioFaseEm: agora,
+      fimFasePrevistoEm: agora + TEMPO_FOCO * 1000,
+
+      pausadaEm: null,
+      tempoRestanteAoPausarMs: null,
+
+      criadaEm: agora,
+      atualizadaEm: agora
+    }
+
+    localStorage.setItem(
+      'pomodoro.sessaoAtiva',
+      JSON.stringify(sessao)
+    )
+
+    setRodando(true)
+  }
+
+  function pausarSessao() {
+    const sessaoSalva = localStorage.getItem('pomodoro.sessaoAtiva')
+
+    if (!sessaoSalva) {
+      return
+    }
+
+    const sessao: SessaoAtiva = JSON.parse(sessaoSalva)
+
+    const agora = Date.now()
+
+    sessao.status = 'pausada'
+    sessao.pausadaEm = agora
+    sessao.tempoRestanteAoPausarMs = tempo * 1000
+    sessao.atualizadaEm = agora
+
+    localStorage.setItem(
+      'pomodoro.sessaoAtiva',
+      JSON.stringify(sessao)
+    )
+
+    setRodando(false)
+  }
 
   function reiniciar() {
     setConfirmarReinicio(true)
@@ -109,8 +197,8 @@ function Timer() {
       <ExibirTempo tempo={tempo} />
 
       <ControlesTimer
-        iniciar={() => setRodando(true)}
-        pausar={() => setRodando(false)}
+        iniciar={iniciarSessao}
+        pausar={pausarSessao}
         reiniciar={reiniciar}
         pular={pular}
         encerrar = {encerrar}
