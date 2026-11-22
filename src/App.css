@@ -1,29 +1,97 @@
+/* VARIAVEIS GLOBAIS PARA REAPROVEITAR CORES */
+:root {
+    --x: rgb(255, 210, 210);
+    --btnNormal: rgb(210, 210, 210);
+    --btnHover: rgb(180, 180, 180);
+    --altaPrio: rgb(195, 30, 30);
+    --mediaPrio: rgb(214, 214, 90);
+    --baixaPrio: rgb(80, 190, 80);
+    --back: rgb(250, 250, 250)
+}
+
+/* COMPONENTES COMUNS */
+form {
+    padding-left: 20px;
+    text-align: left;
+}
+label {
+    font-size: 16px;
+}
+input {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+select {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+button {
+    margin: 10px 5px 5px 5px;
+    padding: 5px 5px 5px 5px;
+    border-radius: 10px;
+    border-width: 1px;
+    border-style: solid;
+    background-color: var(--btnNormal);
+    transition: background-color 0.5s;
+}
+button:hover {
+    background-color: var(--btnHover);
+}
+
+/* RAIZ */
 .app {
   display: flex;
   min-height: 100vh;
 }
 
+/* TIMER */
 .pomodoro {
   flex: 1;
-  padding: 40px;
+  padding: 10px;
 }
 
-.tarefas {
-  width: 320px;
-  padding: 40px;
-  border-left: 1px solid #ddd;
+/* PAINEL DE TAREFAS */
+#tarefas {
+    width: 320px;
 }
 
+@media screen and (max-width: 800px) {
+    .app {
+        display: flex;
+        flex-direction: column;
+    } 
+    .pomodoro {
+        min-height: 100vh;
+    }
+
+    #tarefas {
+        min-height: 100vh;
+    }
+
+}
+
+
+
+
+
+/* SUBCOMPONENTES DO PAINEL DO TIMER POMODORO */
 .tempo {
   font-size: 64px;
   font-weight: bold;
   margin: 30px 0;
 }
-
 .controles {
   display: flex;
   gap: 12px;
 }
+
+
+
+
+
+
+
+/* SUBCOMPONENTES DO PAINEL DE TAREFAS */
 
 .cabecalho-tarefas {
   display: flex;
@@ -34,4 +102,97 @@
 
 .lista-tarefas {
   margin-top: 24px;
+}
+
+#header-tarefas {
+    background-color: var(--x);
+    padding: 10px 10px 10px 10px;
+    background-image: url("assets/pomodoro_0.jpeg");
+    background-repeat: no-repeat;
+    background-position: top center;
+    background-size: 100% 100%;
+    text-align: left;
+}
+
+#formulario-tarefa {
+    margin-top: 10px;
+    padding: 0px 10px 10px 10px;
+    background-color: rgb(250, 250, 250);
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 15px;
+}
+
+#acoes-formulario-tarefa {
+    text-align: center;
+}
+
+.msg-validacao {
+    color: red;
+    font-size: 10px;
+}
+
+.concluido {
+    text-decoration: line-through;
+}
+
+.tag-prioridade {
+    font-size: 10px;
+    background-color: lightgray;
+    border-radius: 10px;
+    padding: 3px 3px 3px 3px;
+}
+
+.lista-tarefas {
+    list-style-type:none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 0px;
+    padding: 0;
+}
+.tarefa-item {
+    margin-left: 0px;
+    border-radius: 10px;
+    border-style: solid;
+    border-width: 4px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-top-color: darkgray;
+    border-bottom-color: darkgray;
+    padding: 10px 10px 10px 10px;
+    margin-bottom: 25px;
+    background-color: var(--back);
+    width: 90%;
+}
+.check-tarefa {
+   
+}
+.titulo-tarefa {
+    color: black;
+    font-size: 18px;
+}
+.prioridade0 {
+    border-left-color: var(--baixaPrio);
+    border-right-color: var(--baixaPrio);
+}
+.prioridade1 {
+    border-left-color: var(--mediaPrio);
+    border-right-color: var(--mediaPrio);
+}
+.prioridade2 {
+    border-left-color: var(--altaPrio);
+    border-right-color: var(--altaPrio);
+}
+
+#sem-tarefas {
+    
+}
+
+#icone-tudo-feito {
+    color: black;
+    font-size: 32px;
+    padding: 5px 5px 5px 5px;
+    border-radius: 32px;
+    background-color: lightgreen;
 }

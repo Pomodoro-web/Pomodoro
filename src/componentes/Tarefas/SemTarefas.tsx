@@ -1,4 +1,3 @@
-import './tarefas.css'
 
 function SemTarefas() {
 
@@ -6,9 +5,20 @@ function SemTarefas() {
 
         <div id="sem-tarefas">
 
-            <span id="icone-tudo-feito">✓</span>
-            <h2>Nenhuma tarefa cadastrada.</h2>
-            <span>Adicione uma tarefa para a ser feita.</span>
+            <div id='block-tudo-feito'>
+            <br></br>
+
+            <span id="icone-tudo-feito">&nbsp;✓&nbsp;</span>
+            
+            <br></br>
+            </div>
+
+            <br></br>
+
+            <div>
+                <h2>Nenhuma tarefa cadastrada.</h2>
+                <span>Adicione uma tarefa para a ser feita.</span>
+            </div>
 
         </div>
     );
