@@ -3,13 +3,15 @@ type PropriedadesControlesTimer = {
   pausar: () => void
   reiniciar: () => void
   pular: () => void
+  encerrar:() => void
 }
 
 function ControlesTimer({
   iniciar,
   pausar,
   reiniciar, 
-  pular
+  pular,
+  encerrar
 }: PropriedadesControlesTimer) {
   return (
     <div className="controles">
@@ -17,6 +19,7 @@ function ControlesTimer({
       <button onClick={pausar}>Pausar</button>
       <button onClick={reiniciar}>Reiniciar</button>
       <button onClick={pular}>Pular</button>
+      <button onClick={encerrar}>Encerrar</button>
     </div>
   )
 }

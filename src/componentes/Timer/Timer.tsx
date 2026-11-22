@@ -16,6 +16,7 @@ function Timer() {
   const [estado, setEstado] = useState<EstadoPomodoro>('Foco')
   const [cicloAtual, setCicloAtual] = useState(1)
   const [confirmarReinicio, setConfirmarReinicio] = useState(false)
+  const [confirmarEncerramento, setConfirmarEncerramento] = useState(false)
 
   useEffect(() => {
     if (!rodando) {
@@ -58,6 +59,12 @@ function Timer() {
   function reiniciar() {
     setConfirmarReinicio(true)
   }
+  function confirmarReinicioDosCiclos() {
+    setEstado('Foco')
+    setCicloAtual(1)
+    setTempo(TEMPO_FOCO)
+    setConfirmarReinicio(false)
+  }
 
   function pular() {
   if (estado === 'Foco') {
@@ -81,38 +88,60 @@ function Timer() {
     }
   }
 
-  function confirmarReinicioDosCiclos() {
+  function encerrar() {
+    setConfirmarEncerramento(true)
+  }
+
+  function confirmarEncerramentoDaSessao() {
+    setRodando(false)
     setEstado('Foco')
     setCicloAtual(1)
     setTempo(TEMPO_FOCO)
-    setConfirmarReinicio(false)
+    setConfirmarEncerramento(false)
   }
+  
 
   return (
     <section className="pomodoro">
       <h1>Pomodoro</h1>
+
       <EstadoTimer estado={estado} />
       <ExibirTempo tempo={tempo} />
+
       <ControlesTimer
         iniciar={() => setRodando(true)}
         pausar={() => setRodando(false)}
         reiniciar={reiniciar}
         pular={pular}
+        encerrar = {encerrar}
       />
 
-    {confirmarReinicio && (
-      <div className="confirmacao">
-        <p>Deseja reiniciar os ciclos?</p>
+      {confirmarReinicio && (
+        <div className="confirmacao">
+          <p>Deseja reiniciar os ciclos?</p>
 
-        <button onClick={confirmarReinicioDosCiclos}>
-          Confirmar
-        </button>
+          <button onClick={confirmarReinicioDosCiclos}>
+            Confirmar
+          </button>
+          <button onClick={() => setConfirmarReinicio(false)}>
+            Cancelar
+          </button>
+        </div>
+      )}
 
-        <button onClick={() => setConfirmarReinicio(false)}>
-          Cancelar
-        </button>
-      </div>
-    )}
+      {confirmarEncerramento && (
+        <div className="confirmacao">
+          <p>Deseja encerrar a sessão?</p>
+
+          <button onClick={confirmarEncerramentoDaSessao}>
+            Confirmar
+          </button>
+
+          <button onClick={() => setConfirmarEncerramento(false)}>
+            Cancelar
+          </button>
+        </div>
+      )}
     </section>
   )
 }
