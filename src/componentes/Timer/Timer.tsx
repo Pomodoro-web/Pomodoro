@@ -15,6 +15,7 @@ function Timer() {
   const [rodando, setRodando] = useState(false)
   const [estado, setEstado] = useState<EstadoPomodoro>('Foco')
   const [cicloAtual, setCicloAtual] = useState(1)
+  const [confirmarReinicio, setConfirmarReinicio] = useState(false)
 
   useEffect(() => {
     if (!rodando) {
@@ -55,13 +56,7 @@ function Timer() {
   }, [rodando, tempo, estado, cicloAtual])
 
   function reiniciar() {
-    const confirmou = window.confirm('Deseja reiniciar os ciclos?')
-    if (!confirmou) {
-      return
-    }
-    setEstado('Foco')
-    setCicloAtual(1)
-    setTempo(TEMPO_FOCO)
+    setConfirmarReinicio(true)
   }
 
   function pular() {
@@ -86,20 +81,38 @@ function Timer() {
     }
   }
 
+  function confirmarReinicioDosCiclos() {
+    setEstado('Foco')
+    setCicloAtual(1)
+    setTempo(TEMPO_FOCO)
+    setConfirmarReinicio(false)
+  }
+
   return (
     <section className="pomodoro">
       <h1>Pomodoro</h1>
-
       <EstadoTimer estado={estado} />
-
       <ExibirTempo tempo={tempo} />
-
       <ControlesTimer
         iniciar={() => setRodando(true)}
         pausar={() => setRodando(false)}
         reiniciar={reiniciar}
         pular={pular}
       />
+
+    {confirmarReinicio && (
+      <div className="confirmacao">
+        <p>Deseja reiniciar os ciclos?</p>
+
+        <button onClick={confirmarReinicioDosCiclos}>
+          Confirmar
+        </button>
+
+        <button onClick={() => setConfirmarReinicio(false)}>
+          Cancelar
+        </button>
+      </div>
+    )}
     </section>
   )
 }
