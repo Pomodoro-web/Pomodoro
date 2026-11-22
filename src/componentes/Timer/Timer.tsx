@@ -38,26 +38,48 @@ function Timer() {
 
     const intervalo = setInterval(() => {
       if (tempo <= 1) {
+        let novaFase: EstadoPomodoro
+        let novoTempo: number
+        let novoCiclo = cicloAtual
+
         if (estado === 'Foco') {
           if (cicloAtual >= CICLOS_ANTES_PAUSA_LONGA) {
-            setEstado('Pausa longa')
-            setTempo(TEMPO_PAUSA_LONGA)
+            novaFase = 'Pausa longa'
+            novoTempo = TEMPO_PAUSA_LONGA
           } else {
-            setEstado('Pausa curta')
-            setTempo(TEMPO_PAUSA_CURTA)
+            novaFase = 'Pausa curta'
+            novoTempo = TEMPO_PAUSA_CURTA
           }
         }
 
         else if (estado === 'Pausa curta') {
-          setCicloAtual((ciclo) => ciclo + 1)
-          setEstado('Foco')
-          setTempo(TEMPO_FOCO)
+          novaFase = 'Foco'
+          novoTempo = TEMPO_FOCO
+          novoCiclo = cicloAtual + 1
         }
 
-        else if (estado === 'Pausa longa') {
-          setCicloAtual(1)
-          setEstado('Foco')
-          setTempo(TEMPO_FOCO)
+        else {
+          novaFase = 'Foco'
+          novoTempo = TEMPO_FOCO
+          novoCiclo = 1
+        }
+
+        setEstado(novaFase)
+        setTempo(novoTempo)
+        setCicloAtual(novoCiclo)
+
+        const sessao = buscarSessao()
+
+        if (sessao) {
+          const agora = obterAgora()
+
+          sessao.faseAtual = novaFase
+          sessao.cicloAtual = novoCiclo
+          sessao.inicioFaseEm = agora
+          sessao.fimFasePrevistoEm = agora + novoTempo * 1000
+          sessao.atualizadaEm = agora
+
+          salvarSessao(sessao)
         }
 
         return
@@ -68,7 +90,7 @@ function Timer() {
 
     return () => clearInterval(intervalo)
   }, [rodando, tempo, estado, cicloAtual])
-
+  
   function iniciarSessao() {
     const sessaoSalva = buscarSessao()
 
@@ -168,6 +190,25 @@ function Timer() {
   }
 
   function confirmarReinicioDosCiclos() {
+    const sessao = buscarSessao()
+
+  if (sessao) {
+    const agora = obterAgora()
+
+      sessao.faseAtual = 'Foco'
+      sessao.cicloAtual = 1
+      sessao.inicioFaseEm = agora
+      sessao.fimFasePrevistoEm = agora + TEMPO_FOCO * 1000
+      sessao.atualizadaEm = agora
+
+      if (sessao.status === 'pausada') {
+        sessao.pausadaEm = agora
+        sessao.tempoRestanteAoPausarMs = TEMPO_FOCO * 1000
+      }
+
+      salvarSessao(sessao)
+    }
+
     setEstado('Foco')
     setCicloAtual(1)
     setTempo(TEMPO_FOCO)
