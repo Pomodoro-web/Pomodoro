@@ -26,7 +26,7 @@ select {
     margin-bottom: 5px;
 }
 button {
-    margin: 10px 0px 5px 0px;
+    margin: 10px 5px 5px 0px;
     padding: 5px 5px 5px 5px;
     border-radius: 10px;
     border-width: 1px;
@@ -175,6 +175,10 @@ button:hover {
     background-color: var(--back);
     width: 90%;
 }
+.marcador-estado {
+    font-size: 14px;
+}
+
 .check-tarefa {
    
 }

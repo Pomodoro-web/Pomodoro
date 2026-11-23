@@ -1,5 +1,6 @@
 import {
 
+    getTextoEquivalenteEstado,
     type EstadoTarefa,
     type Tarefa
 
@@ -28,6 +29,8 @@ export function ItemTarefa(args: Props) {
                 </label>
 
             </div>
+
+            <span className="marcador-estado">&lt;{getTextoEquivalenteEstado(args.tarefa.estado)}&gt;</span>
 
             <div>
                 <button onClick={() => args.aoEditar(args.tarefa)}>
