@@ -3,6 +3,7 @@ import ExibirTempo from './ExibirTempo'
 import ControlesTimer from './ControlesTimer'
 import EstadoTimer from './EstadoTimer'
 import { type Preset, usePresetAtivoOpcional, SeletorPresets } from '../Presets'
+import alertaSonoro from '../../assets/alerta.mp3'
 
 import {
   buscarSessao,
@@ -15,24 +16,13 @@ import type {
   SessaoAtiva
 } from './persistenciaSessao'
 
-const TEMPO_FOCO = 0.5 * 60
-const TEMPO_PAUSA_CURTA = 0.2 * 60
-const TEMPO_PAUSA_LONGA = 0.5 * 60
-const CICLOS_ANTES_PAUSA_LONGA = 2
-
 function obterAgora() {
   return Date.now()
 }
 
-function obterDuracaoDaFase(fase: EstadoPomodoro) {
-  if (fase === 'Foco') {
-    return TEMPO_FOCO
-  }
-  if (fase === 'Pausa curta') {
-    return TEMPO_PAUSA_CURTA
-  }
-  
-  return TEMPO_PAUSA_LONGA
+function tocarAlerta() {
+  const audio = new Audio(alertaSonoro)
+  audio.play()
 }
 
 type PropriedadesTimer = {
@@ -42,7 +32,12 @@ type PropriedadesTimer = {
 function Timer({ preset: presetProp }: PropriedadesTimer = {}) {
   const presetDoContexto = usePresetAtivoOpcional()
   const presetAtivo = presetProp ?? presetDoContexto
-  const tempoPadraoSegundos = (presetAtivo?.tempoFocoMin ?? 25) * 60
+
+  const tempoFoco = (presetAtivo?.tempoFocoMin ?? 25) * 60
+  const tempoPausaCurta = (presetAtivo?.tempoPausaCurtaMin ?? 5) * 60
+  const tempoPausaLonga = (presetAtivo?.tempoPausaLongaMin ?? 15) * 60
+  const ciclosAntesPausaLonga = presetAtivo?.ciclosAntesPausaLonga ?? 4
+  const tempoPadraoSegundos = tempoFoco
 
   const [tempo, setTempo] = useState(tempoPadraoSegundos)
   const [rodando, setRodando] = useState(false)
@@ -74,13 +69,30 @@ function Timer({ preset: presetProp }: PropriedadesTimer = {}) {
 
     if (sessao.status === 'emAndamento') {
       const agora = obterAgora()
+      const tempoFocoSessao = sessao.snapshotPreset.tempoFocoMin * 60
+      const tempoPausaCurtaSessao = sessao.snapshotPreset.tempoPausaCurtaMin * 60
+      const tempoPausaLongaSessao = sessao.snapshotPreset.tempoPausaLongaMin * 60
+      const ciclosAntesPausaLongaSessao = sessao.snapshotPreset.ciclosAntesPausaLonga
+
+      function obterDuracaoDaFaseDaSessao(fase: EstadoPomodoro) {
+        if (fase === 'Foco') {
+          return tempoFocoSessao
+        }
+
+        if (fase === 'Pausa curta') {
+          return tempoPausaCurtaSessao
+        }
+
+        return tempoPausaLongaSessao
+      }
+
       let faseAtual = sessao.faseAtual
       let cicloAtualRestaurado = sessao.cicloAtual
       let fimDaFase = sessao.fimFasePrevistoEm
 
       while (fimDaFase <= agora) {
         if (faseAtual === 'Foco') {
-          if (cicloAtualRestaurado >= CICLOS_ANTES_PAUSA_LONGA) {
+          if (cicloAtualRestaurado >= ciclosAntesPausaLongaSessao) {
             faseAtual = 'Pausa longa'
           } else {
             faseAtual = 'Pausa curta'
@@ -97,14 +109,14 @@ function Timer({ preset: presetProp }: PropriedadesTimer = {}) {
           faseAtual = 'Foco'
         }
 
-        fimDaFase = fimDaFase + obterDuracaoDaFase(faseAtual) * 1000
+        fimDaFase = fimDaFase + obterDuracaoDaFaseDaSessao(faseAtual) * 1000
       }
 
       const tempoRestante = fimDaFase - agora
 
       sessao.faseAtual = faseAtual
       sessao.cicloAtual = cicloAtualRestaurado
-      sessao.inicioFaseEm = fimDaFase - obterDuracaoDaFase(faseAtual) * 1000
+      sessao.inicioFaseEm = fimDaFase - obterDuracaoDaFaseDaSessao(faseAtual) * 1000
       sessao.fimFasePrevistoEm = fimDaFase
       sessao.atualizadaEm = agora
 
@@ -135,38 +147,49 @@ function Timer({ preset: presetProp }: PropriedadesTimer = {}) {
     }
 
     const intervalo = setInterval(() => {
+
+      const sessao = buscarSessao()
+
+      if (!sessao) {
+        return
+      }
+
+      const tempoFocoSessao = sessao.snapshotPreset.tempoFocoMin * 60
+      const tempoPausaCurtaSessao = sessao.snapshotPreset.tempoPausaCurtaMin * 60
+      const tempoPausaLongaSessao = sessao.snapshotPreset.tempoPausaLongaMin * 60
+      const ciclosAntesPausaLongaSessao = sessao.snapshotPreset.ciclosAntesPausaLonga
+
       if (tempo <= 1) {
+        tocarAlerta()
         let novaFase: EstadoPomodoro
         let novoTempo: number
         let novoCiclo = cicloAtual
 
         if (estado === 'Foco') {
-          if (cicloAtual >= CICLOS_ANTES_PAUSA_LONGA) {
+          if (cicloAtual >= ciclosAntesPausaLongaSessao) {
             novaFase = 'Pausa longa'
-            novoTempo = TEMPO_PAUSA_LONGA
+            novoTempo = tempoPausaLongaSessao
           } else {
             novaFase = 'Pausa curta'
-            novoTempo = TEMPO_PAUSA_CURTA
+            novoTempo = tempoPausaCurtaSessao
           }
         }
 
         else if (estado === 'Pausa curta') {
           novaFase = 'Foco'
-          novoTempo = TEMPO_FOCO
+          novoTempo = tempoFocoSessao
           novoCiclo = cicloAtual + 1
         }
 
         else {
           novaFase = 'Foco'
-          novoTempo = TEMPO_FOCO
+          novoTempo = tempoFocoSessao
           novoCiclo = 1
         }
 
         setEstado(novaFase)
         setTempo(novoTempo)
         setCicloAtual(novoCiclo)
-
-        const sessao = buscarSessao()
 
         if (sessao) {
           const agora = obterAgora()
@@ -203,17 +226,21 @@ function Timer({ preset: presetProp }: PropriedadesTimer = {}) {
       }
     }
 
+    if (!presetAtivo) {
+      return
+    }
+
     const agora = obterAgora()
 
     const sessao: SessaoAtiva = {
       id: crypto.randomUUID(),
-      presetId: 'temporario',
+      presetId: presetAtivo.id,
 
       snapshotPreset: {
-        tempoFocoMin: TEMPO_FOCO / 60,
-        tempoPausaCurtaMin: TEMPO_PAUSA_CURTA / 60,
-        ciclosAntesPausaLonga: CICLOS_ANTES_PAUSA_LONGA,
-        tempoPausaLongaMin: TEMPO_PAUSA_LONGA / 60
+        tempoFocoMin: tempoFoco / 60,
+        tempoPausaCurtaMin: tempoPausaCurta / 60,
+        ciclosAntesPausaLonga: ciclosAntesPausaLonga,
+        tempoPausaLongaMin: tempoPausaLonga / 60
       },
 
       faseAtual: 'Foco',
@@ -221,7 +248,7 @@ function Timer({ preset: presetProp }: PropriedadesTimer = {}) {
       status: 'emAndamento',
 
       inicioFaseEm: agora,
-      fimFasePrevistoEm: agora + TEMPO_FOCO * 1000,
+      fimFasePrevistoEm: agora + tempoFoco * 1000,
 
       pausadaEm: null,
       tempoRestanteAoPausarMs: null,
@@ -234,7 +261,7 @@ function Timer({ preset: presetProp }: PropriedadesTimer = {}) {
 
     setEstado('Foco')
     setCicloAtual(1)
-    setTempo(TEMPO_FOCO)
+    setTempo(tempoFoco)
     setRodando(true)
   }
 
@@ -292,59 +319,65 @@ function Timer({ preset: presetProp }: PropriedadesTimer = {}) {
 
     if (sessao) {
       const agora = obterAgora()
+      const tempoFocoSessao = sessao.snapshotPreset.tempoFocoMin * 60
 
-        sessao.faseAtual = 'Foco'
-        sessao.cicloAtual = 1
-        sessao.inicioFaseEm = agora
-        sessao.fimFasePrevistoEm = agora + TEMPO_FOCO * 1000
-        sessao.atualizadaEm = agora
+      sessao.faseAtual = 'Foco'
+      sessao.cicloAtual = 1
+      sessao.inicioFaseEm = agora
+      sessao.fimFasePrevistoEm = agora + tempoFocoSessao * 1000
+      sessao.atualizadaEm = agora
 
-        if (sessao.status === 'pausada') {
-          sessao.pausadaEm = agora
-          sessao.tempoRestanteAoPausarMs = TEMPO_FOCO * 1000
-        }
+      if (sessao.status === 'pausada') {
+        sessao.pausadaEm = agora
+        sessao.tempoRestanteAoPausarMs = tempoFocoSessao * 1000
+      }
 
-        salvarSessao(sessao)
-    }
-
-    setEstado('Foco')
-    setCicloAtual(1)
-    setTempo(TEMPO_FOCO)
+      salvarSessao(sessao)
+      setEstado('Foco')
+      setCicloAtual(1)
+      setTempo(tempoFocoSessao)
+      }
     setConfirmarReinicio(false)
+    
   }
 
   function pular() {
-    let novaFase: EstadoPomodoro
-    let novoTempo: number
-
-    if (estado === 'Foco') {
-      if (cicloAtual >= CICLOS_ANTES_PAUSA_LONGA) {
-        novaFase = 'Pausa longa'
-        novoTempo = TEMPO_PAUSA_LONGA
-      } else {
-        novaFase = 'Pausa curta'
-        novoTempo = TEMPO_PAUSA_CURTA
-      }
-    }
-
-    else if (estado === 'Pausa curta') {
-      novaFase = 'Foco'
-      novoTempo = TEMPO_FOCO
-    }
-
-    else {
-      novaFase = 'Foco'
-      novoTempo = TEMPO_FOCO
-    }
-
-    setEstado(novaFase)
-    setTempo(novoTempo)
-
     const sessao = buscarSessao()
 
     if (!sessao) {
       return
     }
+
+    const tempoFocoSessao = sessao.snapshotPreset.tempoFocoMin * 60
+    const tempoPausaCurtaSessao = sessao.snapshotPreset.tempoPausaCurtaMin * 60
+    const tempoPausaLongaSessao = sessao.snapshotPreset.tempoPausaLongaMin * 60
+    const ciclosAntesPausaLongaSessao = sessao.snapshotPreset.ciclosAntesPausaLonga
+
+    let novaFase: EstadoPomodoro
+    let novoTempo: number
+    
+    if (estado === 'Foco') {
+      if (cicloAtual >= ciclosAntesPausaLongaSessao) {
+        novaFase = 'Pausa longa'
+        novoTempo = tempoPausaLongaSessao
+      } else {
+        novaFase = 'Pausa curta'
+        novoTempo = tempoPausaCurtaSessao
+      }
+    }
+
+    else if (estado === 'Pausa curta') {
+      novaFase = 'Foco'
+      novoTempo = tempoFocoSessao
+    }
+
+    else {
+      novaFase = 'Foco'
+      novoTempo = tempoFocoSessao
+    }
+
+    setEstado(novaFase)
+    setTempo(novoTempo)
 
     const agora = obterAgora()
 

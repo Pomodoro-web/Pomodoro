@@ -13,15 +13,11 @@ export type SessaoAtiva = {
 
   faseAtual: EstadoPomodoro
   cicloAtual: number
-
   status: 'emAndamento' | 'pausada' | 'concluida'
-
   inicioFaseEm: number
   fimFasePrevistoEm: number
-
   pausadaEm: number | null
   tempoRestanteAoPausarMs: number | null
-
   criadaEm: number
   atualizadaEm: number
 }
